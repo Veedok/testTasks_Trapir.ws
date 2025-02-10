@@ -1,0 +1,44 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laravel-app
+    container_name: laravel_app
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+      - ./conf/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./conf/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-gd.ini
+      - ./conf/php.ini-development:/usr/local/etc/php/php.ini-development
+    depends_on:
+      - db
+    networks:
+      - laravel-network
+    restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  db:
+    image: mysql:5.7
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_password
+    volumes:
+      - ./db_data:/var/lib/mysql
+    networks:
+      - laravel-network
+    ports:
+      - "3306:3306"
+
+networks:
+  laravel-network:
+
+volumes:
+  db_data:
